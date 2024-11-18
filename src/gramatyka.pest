@@ -50,3 +50,11 @@ quoted_field = _{ "\"" ~ (!"\"" ~ ANY | "\"" ~ "\"")* ~ "\"" }
 /// Represents a field without quotes, which cannot include commas or line breaks.
 /// Accepts all characters except delimiters (`,`), spaces, and `NEWLINE`.
 unquoted_field = _{ (!("," | NEWLINE | " ") ~ ANY)+ }
+
+/// quoted_field_with_escape представляє поле з лапками, в якому символи лапок можуть бути екрановані подвійними лапками (для включення лапок в сам текст поля).
+/// Наприклад, значення `"This is a ""quoted"" field"` буде розпізнано як `This is a "quoted" field`.
+quoted_field_with_escape = _{ "\"" ~ (!"\"" ~ ANY | "\"" ~ "\"")* ~ "\"" }
+
+/// multi_line_field представляє поле, яке може бути багаторядковим. Це поле знаходиться в лапках і може містити нові рядки.
+/// Поле продовжується на кілька рядків, поки не зустрінеться закриваюча лапка.
+multi_line_field = _{ "\"" ~ (!"\"" ~ ANY | NEWLINE ~ ANY)* ~ "\"" }
