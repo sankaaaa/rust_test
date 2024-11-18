@@ -1,36 +1,52 @@
-// WHITESPACE представляє пробіли, табуляцію або нові рядки
-// Використовується для ігнорування пробілів у межах CSV-файлу.
+//! # CSV Parser Project
+//!
+//! Grammar for parsing CSV files. This parser identifies whitespace, line breaks, records, 
+//! and fields within a CSV file, including handling quoted and unquoted fields.
+//! It is implemented using `pest` and is designed to process CSV files with varying formats.
+//!
+//! ## Grammar Rules and Descriptions
+//!
+//! - **WHITESPACE**: Represents spaces, tabs, or line breaks. Used for ignoring irrelevant spaces in the file.
+//! - **NEWLINE**: Represents Unix (`\n`) or Windows (`\r\n`) line breaks, marking the end of a CSV record.
+//! - **csv**: Main rule for parsing CSV files. Handles optional spaces or newlines before and after records.
+//! - **record**: Represents a CSV row, consisting of one or more fields separated by commas.
+//! - **field**: Describes a field, which can be empty, quoted, or unquoted.
+//! - **empty_field**: Represents an empty field, indicated by a single comma with no value.
+//! - **quoted_field**: Represents a field enclosed in quotes, allowing the inclusion of commas or escaped quotes.
+//! - **unquoted_field**: Represents a field without quotes, which cannot include commas or line breaks.
+
+/// WHITESPACE represents spaces, tabs, or newlines.
+/// It is used to ignore irrelevant spacing within the CSV file.
 WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
 
-// NEWLINE визначає розрив рядка, що може бути в стилі Unix ("\n") або Windows ("\r\n").
-// Використовується для визначення кінця запису в CSV-файлі.
+/// NEWLINE defines line breaks in Unix ("\n") or Windows ("\r\n") style.
+/// It marks the end of a record in a CSV file.
 NEWLINE = _{ "\n" | "\r\n" }
 
-// csv — головне правило для парсингу CSV-файлу.
-// Спершу дозволяє необов'язкові пробіли чи нові рядки на початку файлу,
-// потім один або кілька записів (`record`), розділених новими рядками,
-// і, нарешті, допускає пробіли або нові рядки після останнього запису.
-// Це правило визначає, що CSV-файл може мати як завершальні, так і початкові розриви рядка.
+/// The main rule for parsing a CSV file.
+/// Allows optional whitespace or newlines at the beginning and end of the file.
+/// Consists of one or more records (`record`), separated by newlines.
+/// Permits leading and trailing line breaks.
 csv = { (WHITESPACE | NEWLINE)* ~ record ~ (NEWLINE ~ record)* ~ (WHITESPACE | NEWLINE)* }
 
-// record визначає запис CSV, що складається з одного або більше полів,
-// розділених комами. Правило `field` представляє значення кожного поля.
+/// A single CSV record, consisting of one or more fields separated by commas.
+/// Each field is parsed according to the `field` rule.
 record = { field ~ ("," ~ field)* }
 
-// field описує поле в CSV-файлі, яке може бути порожнім (`empty_field`),
-// у лапках (`quoted_field`), або без лапок (`unquoted_field`).
+/// Describes a CSV field, which can be empty, quoted, or unquoted.
+/// This covers all valid field types in a CSV file.
 field = { empty_field | quoted_field | unquoted_field }
 
-// empty_field представляє порожнє поле, яке позначається лише комою
-// і не містить жодного значення. Це використовується, коли поле є порожнім.
+/// Represents an empty field, indicated by a single comma with no value.
+/// Used when a field is explicitly left blank.
 empty_field = _{ "," }
 
-// quoted_field представляє поле, яке обгорнуте в лапки (`"`), 
-// що дозволяє включати в поле символи коми або навіть інші лапки.
-// Наприклад, `"значення з лапками ""всередині"""` буде розпізнано як одне поле.
-// Подвійні лапки всередині поля означають одну лапку у фінальному значенні.
+/// Represents a field enclosed in double quotes (`"`).
+/// Allows commas or escaped double quotes within the field.
+/// For example, `"value with quotes ""inside"""` is parsed as a single field.
+/// Double quotes inside the field represent a single quote in the final value.
 quoted_field = _{ "\"" ~ (!"\"" ~ ANY | "\"" ~ "\"")* ~ "\"" }
 
-// unquoted_field представляє поле, яке не має лапок і не містить символів коми чи нових рядків.
-// Дозволяє використовувати всі символи, окрім розділювачів (`,`, пробілу і `NEWLINE`).
+/// Represents a field without quotes, which cannot include commas or line breaks.
+/// Accepts all characters except delimiters (`,`), spaces, and `NEWLINE`.
 unquoted_field = _{ (!("," | NEWLINE | " ") ~ ANY)+ }
