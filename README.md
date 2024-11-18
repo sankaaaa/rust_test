@@ -1,88 +1,55 @@
-# CSV_PARSER_MOSHKOVSKYI
-Realisation of basic csv parser
-# Technical description
-This parser is parsing a csv file.
-He will parse file, show it in structured way and check file on correctnes.
-# Usage
-The result can be used for basic data analytics, here is the example:
-We have the test csv file:
+## CSV_PARSER
 
+Creates.io = https://crates.io/crates/csv_parser_moshkovskyi
+Docs.rs = https://docs.rs/csv_parser_moshkovskyi/latest/csv_parser_moshkovskyi/
+
+## General description
+This is an implementation of a basic CSV parser in Rust.
+
+## Technical description of parsing process
+This project provides an efficient tool for parsing CSV files.  
+It supports:  
+- Reading CSV files and validating their structure.   
+- Returning structured data for further processing or analysis.
+
+---
+
+## Features
+- **Header Support**: Automatically recognizes and processes headers.  
+- **Field Types**: Handles empty, quoted, and unquoted fields.  
+- **Error Handling**: Detects and reports incorrect CSV formatting.  
+- **Simple Integration**: Easily integrates with Rust projects for data processing tasks.
+
+---
+
+## Technical Details
+The parser processes CSV files line by line. It:  
+1. Opens the file using `std::fs::File`.  
+2. Uses `csv::ReaderBuilder` to handle CSV-specific rules (headers, delimiters, etc.).  
+3. Iterates through rows and prints records in a structured format.
+
+---
+
+## Usage
+### Input File (`test.csv`):
+```csv
 "name","age","city"
 "John Doe",30,"New York"
 "Jane Smith",25,"Los Angeles"
 "Sam Brown",22,"Chicago"
+```
 
-Then using our parse_csv method, and our test file, we can have something like this:
-fn parse_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
-    let file = File::open(file_path)?;
-    let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
-
-    for result in rdr.records() {
-        match result {
-            Ok(record) => println!("{:?}", record),
-            Err(err) => eprintln!("Error reading record: {}", err),
-        }
-    }
-    Ok(())
-}
-
-fn main() {
-    let file_path = "test.csv";
-    if let Err(e) = parse_csv(file_path) {
-        eprintln!("Error parsing CSV: {}", e);
-    }
-}
-
-Where:
-ReaderBuilder::new().has_headers(true).from_reader(file) - creates a CSV reader that treats
-the first line as header
-rdr.records() - reads rows from file
-println!("{:?}", record) - prints each row as the tuple of fields
-
-Output:
-
+### Output:
 Record { 0: "Alice", 1: "30", 2: "New York" }
 Record { 0: "Bob", 1: "25", 2: "San Francisco" }
 Record { 0: "Charlie", 1: "35", 2: "Los Angeles" }
-# Grammar
-- **WHITESPACE**: Пропуски, табуляція, нові рядки, використовуються для ігнорування пробілів у файлі.
-    ```rust
-    WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
-    ```
 
-- **NEWLINE**: Розриви рядків у стилях Unix і Windows.
-    ```rust
-    NEWLINE = _{ "\n" | "\r\n" }
-    ```
+---
+![CSS parsing process](csv_parse.png)
+---
 
-- **csv**: Головне правило для парсингу CSV, що дозволяє обробляти необов'язкові пробіли та нові рядки, а також розділені записи.
-    ```rust
-    csv = { (WHITESPACE | NEWLINE)* ~ record ~ (NEWLINE ~ record)* ~ (WHITESPACE | NEWLINE)* }
-    ```
-
-- **record**: Запис, що складається з одного або більше полів, розділених комами.
-    ```rust
-    record = { field ~ ("," ~ field)* }
-    ```
-
-- **field**: Поле CSV, яке може бути порожнім, в лапках або без лапок.
-    ```rust
-    field = { empty_field | quoted_field | unquoted_field }
-    ```
-
-- **empty_field**: Порожнє поле, що позначається лише комою.
-    ```rust
-    empty_field = _{ "," }
-    ```
-
-- **quoted_field**: Поле в лапках, що дозволяє включати коми або інші лапки.
-    ```rust
-    quoted_field = _{ "\"" ~ (!"\"" ~ ANY | "\"" ~ "\"")* ~ "\"" }
-    ```
-
-- **unquoted_field**: Поле без лапок, яке не містить коми або нових рядків.
-    ```rust
-    unquoted_field = _{ (!("," | NEWLINE | " ") ~ ANY)+ }- **WHITESPACE**: Represents spaces, tabs, newlines, and carriage returns. Used for ignoring whitespace within the CSV file.
+## Grammar
+- **WHITESPACE**: Represents spaces, tabs, newlines, and carriage returns. Used for ignoring whitespace within the CSV file.
     ```rust
     WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
     ```
@@ -121,7 +88,3 @@ Record { 0: "Charlie", 1: "35", 2: "Los Angeles" }
     ```rust
     unquoted_field = _{ (!("," | NEWLINE | " ") ~ ANY)+ }
     ```
-# Useful Links
-Creates.io = https://crates.io/crates/csv_parser_moshkovskyi
-GitHub = https://github.com/IvanKawun/csv_parser_moshkoskyi/tree/master
-Docs.rs = https://docs.rs/csv_parser_moshkovskyi/latest/csv_parser_moshkovskyi/
