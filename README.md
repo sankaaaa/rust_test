@@ -1,6 +1,7 @@
 ## CSV_PARSER
 
 Creates.io = https://crates.io/crates/csv_parser_moshkovskyi
+
 Docs.rs = https://docs.rs/csv_parser_moshkovskyi/latest/csv_parser_moshkovskyi/
 
 ## General description
@@ -41,7 +42,9 @@ The parser processes CSV files line by line. It:
 
 ### Output:
 Record { 0: "Alice", 1: "30", 2: "New York" }
+
 Record { 0: "Bob", 1: "25", 2: "San Francisco" }
+
 Record { 0: "Charlie", 1: "35", 2: "Los Angeles" }
 
 ---
